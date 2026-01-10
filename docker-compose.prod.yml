@@ -33,8 +33,6 @@ services:
       - ./backend/.env
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=18.1&charset=utf8}
-      - APP_ENV=${APP_ENV}
-      - APP_SECRET=${APP_SECRET}
     restart: unless-stopped
 
   backend_nginx:
