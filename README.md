@@ -50,7 +50,7 @@ git clone --recurse-submodules <repository-url> fatureime
 Start the development environment:
 
 ```bash
-docker-compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
 This will start:
@@ -63,7 +63,7 @@ This will start:
 Install dependencies inside the container:
 
 ```bash
-docker-compose -f docker-compose.dev.yml exec backend composer install
+docker compose -f docker-compose.dev.yml exec backend composer install
 ```
 
 **Sync vendor for VS Code**: To enable stepping into vendor files in VS Code, copy the vendor directory from the container:
@@ -77,7 +77,7 @@ docker cp invoicing_backend:/var/www/html/vendor ./backend
 Install dependencies inside the container:
 
 ```bash
-docker-compose -f docker-compose.dev.yml exec frontend npm install
+docker compose -f docker-compose.dev.yml exec frontend npm install
 ```
 
 ### 6. Environment Configuration
@@ -93,7 +93,10 @@ cp .env.example .env
 2. Update the `.env` file with your values:
    - `APP_ENV`: Set to `dev` for development or `prod` for production
    - `APP_SECRET`: Generate a strong random secret (e.g., `openssl rand -hex 32`)
-   - `DATABASE_URL`: Update with your database credentials
+   - `POSTGRES_DB`: Database name (e.g., `invoicing`)
+   - `POSTGRES_USER`: Database user (e.g., `postgres`)
+   - `POSTGRES_PASSWORD`: Database password
+   - `DATABASE_URL`: Optional - will be automatically constructed from the above variables if not explicitly set
 
 #### Frontend Environment Setup
 
@@ -111,24 +114,24 @@ cp .env.example .env
 ### Running in Development Mode
 
 ```bash
-docker-compose -f docker-compose.dev.yml up
+docker compose -f docker-compose.dev.yml up
 ```
 
 ### Stopping Services
 
 ```bash
-docker-compose -f docker-compose.dev.yml down
+docker compose -f docker-compose.dev.yml down
 ```
 
 ### Viewing Logs
 
 ```bash
 # All services
-docker-compose -f docker-compose.dev.yml logs -f
+docker compose -f docker-compose.dev.yml logs -f
 
 # Specific service
-docker-compose -f docker-compose.dev.yml logs -f backend
-docker-compose -f docker-compose.dev.yml logs -f frontend
+docker compose -f docker-compose.dev.yml logs -f backend
+docker compose -f docker-compose.dev.yml logs -f frontend
 ```
 
 ### Accessing Services
@@ -154,22 +157,25 @@ cp .env.example .env
 # Edit .env with production API URL
 ```
 
-2. **Set environment variables** (or use a `.env` file in the root):
-```bash
-export POSTGRES_PASSWORD=your-secure-password
-export APP_SECRET=your-generated-secret
-```
+2. **Ensure all required variables are set in `backend/.env`** (see above for required variables)
 
 3. **Build and run production environment**:
 ```bash
-docker-compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-**Important**: Before running in production:
-- Update `POSTGRES_PASSWORD` environment variable
-- Update `APP_SECRET` in `backend/.env`
-- Update `DATABASE_URL` in `backend/.env` with production database credentials
-- Update `VITE_API_URL` in `frontend/.env` with production API URL
+**Important**: All environment variables must be explicitly set in `backend/.env`. There are no default values.
+
+Required variables in `backend/.env`:
+- `POSTGRES_DB=invoicing` (or your database name)
+- `POSTGRES_USER=postgres` (or your database user)
+- `POSTGRES_PASSWORD=your-secure-password` (use a strong password in production)
+- `APP_ENV=prod` (or `dev` for development)
+- `APP_SECRET=your-generated-secret` (generate with `openssl rand -hex 32`)
+
+The `DATABASE_URL` will be automatically constructed from `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` if not explicitly set in `backend/.env`.
+
+Also update `VITE_API_URL` in `frontend/.env` with your production API URL.
 
 ## Debugging
 
@@ -199,10 +205,10 @@ PostgreSQL is available at:
 
 ```bash
 # Access PostgreSQL CLI
-docker-compose -f docker-compose.dev.yml exec postgres psql -U postgres -d invoicing
+docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d invoicing
 
 # Run migrations (after composer install)
-docker-compose -f docker-compose.dev.yml exec backend php bin/console doctrine:migrations:migrate
+docker compose -f docker-compose.dev.yml exec backend php bin/console doctrine:migrations:migrate
 ```
 
 ## Project Structure
@@ -227,23 +233,24 @@ fatureime/
 
 ### Backend not responding
 
-1. Check if PHP-FPM is running: `docker-compose -f docker-compose.dev.yml ps`
-2. Check backend logs: `docker-compose -f docker-compose.dev.yml logs backend`
+1. Check if PHP-FPM is running: `docker compose -f docker-compose.dev.yml ps`
+2. Check backend logs: `docker compose -f docker-compose.dev.yml logs backend`
 3. Ensure composer dependencies are installed
 4. Check nginx configuration
 
 ### Frontend not loading
 
 1. Check if Node container is running
-2. Check frontend logs: `docker-compose -f docker-compose.dev.yml logs frontend`
+2. Check frontend logs: `docker compose -f docker-compose.dev.yml logs frontend`
 3. Ensure npm dependencies are installed
 4. Check if port 3000 is available
 
 ### Database connection issues
 
-1. Verify PostgreSQL is running: `docker-compose -f docker-compose.dev.yml ps postgres`
-2. Check database logs: `docker-compose -f docker-compose.dev.yml logs postgres`
-3. Verify DATABASE_URL in backend/.env matches the container setup
+1. Verify PostgreSQL is running: `docker compose -f docker-compose.dev.yml ps postgres`
+2. Check database logs: `docker compose -f docker-compose.dev.yml logs postgres`
+3. Verify `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` are set in `backend/.env`
+4. If `DATABASE_URL` is explicitly set, ensure it matches the individual variables
 
 ## Contributing
 

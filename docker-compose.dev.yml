@@ -4,6 +4,8 @@ services:
   postgres:
     image: postgres:18.1
     container_name: invoicing_postgres
+    env_file:
+      - ./backend/.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -15,7 +17,7 @@ services:
     networks:
       - invoicing_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U \"$$POSTGRES_USER\"'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,8 +38,8 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - APP_ENV=${APP_ENV:-dev}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=18.1&charset=utf8}
+      - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
       - XDEBUG_MODE=debug
       - XDEBUG_CONFIG=client_host=host.docker.internal client_port=9003

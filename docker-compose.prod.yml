@@ -4,6 +4,8 @@ services:
   postgres:
     image: postgres:18.1
     container_name: invoicing_postgres_prod
+    env_file:
+      - ./backend/.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -14,7 +16,7 @@ services:
       - invoicing_network_prod
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U \"$$POSTGRES_USER\"'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -34,9 +36,9 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD:-change-this-password}@postgres:5432/invoicing?serverVersion=18.1&charset=utf8}
-      - APP_ENV=${APP_ENV:-prod}
-      - APP_SECRET=${APP_SECRET:-change-this-secret}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=18.1&charset=utf8}
+      - APP_ENV=${APP_ENV}
+      - APP_SECRET=${APP_SECRET}
     restart: unless-stopped
 
   backend_nginx:
