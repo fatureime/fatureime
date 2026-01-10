@@ -159,7 +159,21 @@ cp .env.example .env
 
 2. **Ensure all required variables are set in `backend/.env`** (see above for required variables)
 
-3. **Build and run production environment**:
+3. **Generate JWT keys** (required for authentication):
+```bash
+cd backend
+# Make sure composer dependencies are installed first
+docker compose -f docker-compose.prod.yml run --rm backend composer install --no-dev --optimize-autoloader
+# Generate JWT keys
+docker compose -f docker-compose.prod.yml run --rm backend php bin/console lexik:jwt:generate-keypair
+```
+**Important**: 
+- The `JWT_PASSPHRASE` environment variable must be set in `backend/.env` before generating keys
+- Keys will be created in `backend/config/jwt/` directory (this directory is gitignored for security)
+- Keys should be generated on the production server, never committed to git
+- The keys will be mounted into the container as a read-only volume
+
+4. **Build and run production environment**:
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
@@ -171,7 +185,8 @@ Required variables in `backend/.env`:
 - `POSTGRES_USER=postgres` (or your database user)
 - `POSTGRES_PASSWORD=your-secure-password` (use a strong password in production)
 - `APP_ENV=prod` (or `dev` for development)
-- `APP_SECRET=your-generated-secret` (generate with `openssl rand -hex 32`)
+- `APP_SECRET=your-generated-secret` (generate with `openssl rand -base64 32`)
+- `JWT_PASSPHRASE=your-jwt-passphrase` (generate with `openssl rand -base64 32` - required for JWT token generation)
 
 The `DATABASE_URL` will be automatically constructed from `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` if not explicitly set in `backend/.env`.
 
