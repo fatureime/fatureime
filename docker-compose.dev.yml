@@ -5,9 +5,9 @@ services:
     image: postgres:18.1
     container_name: invoicing_postgres
     environment:
-      POSTGRES_DB: invoicing
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -33,10 +33,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    env_file:
+      - ./backend/.env
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/invoicing?serverVersion=18.1&charset=utf8
-      - APP_ENV=dev
-      - APP_SECRET=dev-secret-key-change-in-production
+      - DATABASE_URL=${DATABASE_URL}
+      - APP_ENV=${APP_ENV:-dev}
+      - APP_SECRET=${APP_SECRET}
       - XDEBUG_MODE=debug
       - XDEBUG_CONFIG=client_host=host.docker.internal client_port=9003
     extra_hosts:
@@ -78,9 +80,11 @@ services:
       - "3000:3000"
     networks:
       - invoicing_network
+    env_file:
+      - ./frontend/.env
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=${VITE_API_URL}
 
 volumes:
   postgres_data:

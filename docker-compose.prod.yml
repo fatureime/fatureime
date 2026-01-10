@@ -5,9 +5,9 @@ services:
     image: postgres:18.1
     container_name: invoicing_postgres_prod
     environment:
-      POSTGRES_DB: invoicing
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-this-password}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
     networks:
@@ -31,9 +31,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    env_file:
+      - ./backend/.env
     environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-change-this-password}@postgres:5432/invoicing?serverVersion=18.1&charset=utf8
-      - APP_ENV=prod
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD:-change-this-password}@postgres:5432/invoicing?serverVersion=18.1&charset=utf8}
+      - APP_ENV=${APP_ENV:-prod}
       - APP_SECRET=${APP_SECRET:-change-this-secret}
     restart: unless-stopped
 

@@ -80,6 +80,32 @@ Install dependencies inside the container:
 docker-compose -f docker-compose.dev.yml exec frontend npm install
 ```
 
+### 6. Environment Configuration
+
+#### Backend Environment Setup
+
+1. Copy the example environment file:
+```bash
+cd backend
+cp .env.example .env
+```
+
+2. Update the `.env` file with your values:
+   - `APP_ENV`: Set to `dev` for development or `prod` for production
+   - `APP_SECRET`: Generate a strong random secret (e.g., `openssl rand -hex 32`)
+   - `DATABASE_URL`: Update with your database credentials
+
+#### Frontend Environment Setup
+
+1. Copy the example environment file:
+```bash
+cd frontend
+cp .env.example .env
+```
+
+2. Update the `.env` file with your production API URL:
+   - `VITE_API_URL`: Your backend API URL (e.g., `http://localhost:8000` for dev)
+
 ## Development
 
 ### Running in Development Mode
@@ -113,16 +139,37 @@ docker-compose -f docker-compose.dev.yml logs -f frontend
 
 ## Production
 
-Build and run production environment:
+### Deployment Steps
 
+1. **Set up environment files**:
+```bash
+# Backend
+cd backend
+cp .env.example .env
+# Edit .env with production values
+
+# Frontend
+cd frontend
+cp .env.example .env
+# Edit .env with production API URL
+```
+
+2. **Set environment variables** (or use a `.env` file in the root):
+```bash
+export POSTGRES_PASSWORD=your-secure-password
+export APP_SECRET=your-generated-secret
+```
+
+3. **Build and run production environment**:
 ```bash
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
-**Important**: Before running in production, update:
-- `POSTGRES_PASSWORD` environment variable
-- `APP_SECRET` environment variable
-- Database credentials in `.env` files
+**Important**: Before running in production:
+- Update `POSTGRES_PASSWORD` environment variable
+- Update `APP_SECRET` in `backend/.env`
+- Update `DATABASE_URL` in `backend/.env` with production database credentials
+- Update `VITE_API_URL` in `frontend/.env` with production API URL
 
 ## Debugging
 
