@@ -6,12 +6,8 @@ services:
     container_name: invoicing_postgres_prod
     env_file:
       - ./backend/.env
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data_prod:/var/lib/postgresql/data
+      - postgres_data_prod:/var/lib/postgresql
     networks:
       - invoicing_network_prod
     restart: unless-stopped

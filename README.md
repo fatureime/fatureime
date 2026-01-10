@@ -28,7 +28,7 @@ This project consists of three repositories:
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url> fatureime
+git clone https://github.com/fatureime/fatureime fatureime
 cd fatureime
 ```
 
@@ -42,7 +42,7 @@ git submodule update
 Or clone with submodules:
 
 ```bash
-git clone --recurse-submodules <repository-url> fatureime
+git clone --recurse-submodules https://github.com/fatureime/fatureime fatureime
 ```
 
 ### 3. Development Environment
