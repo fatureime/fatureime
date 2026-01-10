@@ -161,11 +161,17 @@ cp .env.example .env
 
 3. **Generate JWT keys** (required for authentication):
 ```bash
-cd backend
-# Make sure composer dependencies are installed first
-docker compose -f docker-compose.prod.yml run --rm backend composer install --no-dev --optimize-autoloader
 # Generate JWT keys
-docker compose -f docker-compose.prod.yml run --rm backend php bin/console lexik:jwt:generate-keypair
+cd 
+# Step 2: Generate JWT keys using docker run with writable mount
+# Find the image that was just built
+IMAGE_ID=$(docker compose -f docker-compose.prod.yml images -q backend)
+docker run --rm \
+  --env-file ./backend/.env \
+  -e APP_ENV=prod \
+  -v "$(pwd)/config/jwt:/var/www/html/config/jwt" \
+  $IMAGE_ID \
+  php bin/console lexik:jwt:generate-keypair
 ```
 **Important**: 
 - The `JWT_PASSPHRASE` environment variable must be set in `backend/.env` before generating keys
